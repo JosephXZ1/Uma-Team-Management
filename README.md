@@ -1,37 +1,28 @@
 # Proyecto_Team-Management
 
-This template should help get you started developing with Vue 3 in Vite.
+Proyecto de CRUD creado con el Framework de Vue.JS y enfocado 100% a FrontEnd (no a backend, fuchi)
 
-## Recommended IDE Setup
+## API usada: Umapyoi.net
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+https://umapyoi.net/
 
-## Recommended Browser Setup
+## Temática: Gestión de equipo de Umamusume
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+Un gestor interactivo de escuderías inspirado en el universo de UmaMusume: Pretty Derby. La aplicación permite a los usuarios fundar un equipo de carreras personalizado y gestionar un roster dinámico de 4 corredoras. A través de la integración con la API de Umapyoi, el sistema ofrece un flujo CRUD completo en el FrontEnd que permite dar de alta equipos, consultar estadísticas y trajes de los personajes en tiempo real, realizar intercambios de integrantes y disolver escuderías de forma local.
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Comando para instalar dependencias de Vite y node_modules (importante)
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Comando para levantar el servidor local y visualizar en el navegador (obviamente exceptuando navegadores raros o viejos como Internet Explorer)
 
 ```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
+### Compilar y correr como sitio (aunque no es necesario)
 
 ```sh
 npm run build
