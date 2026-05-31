@@ -1,8 +1,42 @@
+//Aqui se importan las 'librerias' necesarias para el funcionamiento del router
 import { createRouter, createWebHistory } from 'vue-router'
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [],
+import Home from '@/pages/home.vue'
+import Create from '@/pages/create.vue'
+import Manage from '@/pages/manage.vue'
+
+import SandBox from '../pages/compDev.vue'
+
+const routes =
+[
+    {
+      path: '/',
+      name: 'Home',
+      component: Home
+    },
+
+    {
+      path: '/create',
+      name: 'Create',
+      component: Create
+    },
+    {
+      path: '/manage',
+      name: 'Manage',
+      component: Manage
+    },
+
+    //Este enlace es un sandBox, un sitio de prueba de componentes temporal, eliminar cuando se termine todo
+    {
+      path: '/sandbox',
+      component: SandBox
+    },   
+]
+
+const router = createRouter(
+{
+    history: createWebHistory(),
+    routes
 })
 
 export default router
