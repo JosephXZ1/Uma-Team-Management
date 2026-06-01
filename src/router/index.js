@@ -5,7 +5,7 @@ import Home from '@/pages/home.vue'
 import Create from '@/pages/create.vue'
 import Manage from '@/pages/manage.vue'
 
-import SandBox from '../pages/compDev.vue'
+import SandBox from '@/pages/sandBox.vue'
 
 const routes =
 [
@@ -28,7 +28,7 @@ const routes =
 
     //Este enlace es un sandBox, un sitio de prueba de componentes temporal, eliminar cuando se termine todo
     {
-      path: '/sandbox',
+      path: '/sandBox',
       component: SandBox
     },   
 ]
