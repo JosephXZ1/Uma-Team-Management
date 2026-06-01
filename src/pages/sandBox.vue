@@ -25,6 +25,7 @@ import Prueba from '@/components/prueba.vue'
             color="blanco"
         /> -->
 
+        <Prueba/>
     </div>
 </template>
 

@@ -1,78 +1,70 @@
 <script setup>
-import { defineProps } from 'vue'
-
-defineProps(
-{
-    texto:
-    {
-        type: String,
-        required: true
-    },
-    redireccion:
-    {
-        type: String,
-        default: null
-    },
-    color:
-    {
-        type: String,
-        default: 'verde'
-    }
-})
+import Boton from '@/components/button.vue'
 </script>
 
 <template>
-    <!-- If se trata de un boton para redireccionar -->
-    <router-link v-if="redireccion" :to="redireccion" :class="['button','transition',color]">
-        {{ texto }}
-    </router-link>
+    <form class="form">
+        <div class="form-wideCont flex">
+            <h2>Crea tu equipo</h2>
+        </div>
+        
+        <div class="form-wideCont">
 
-    <!-- Else entonces será un botón de acción normal -->
-    <button v-else @click="$emit('click-accion')" :class="['button','transition',color]" type="button">
-        {{ texto }}
-    </button>
+        </div>
+        
+        <div class="form-splitCont">
+
+        </div>
+        <div class="form-splitCont">
+
+        </div> 
+        
+        <div class="form-wideCont">
+            <button>Botón centrado</button>
+        </div>
+    </form>
 </template>
 
 <style scoped>
-.button 
+/* CONTENEDOR PADRE */
+.form
 {
-    padding: 1.2rem 2.1rem;
-    background-color: #8ccf05;
-    border: 3px solid;
-    border-radius: 12px;
-    font-size: 1.7rem;
-    font-weight: 570;
-    text-decoration: none;
-    text-align: center;
-    display: inline-block;
-    cursor: pointer;
-
-    width: var(--btnWidth, fit-content);
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Creamos 2 columnas exactamente iguales (1 fracción y 1 fracción) */
+    width: 55%;
+    background-color: #d3d3d3;
+    border-radius: 1rem;
+    overflow: hidden;
 }
 
-/* Colores de los botones */
-.verde 
+/* LOS CONTENEDORES HIJOS */
+.form-wideCont
 {
-    background-color: #8ccf05;
+    grid-column: span 2; /* Le decimos: "Tú vas a estirarte y ocupar las 2 columnas" */
+    height: 15vh; 
+    background-color: white;
+    border: 2px solid gray;
+}
+
+.form-wideCont:first-of-type
+{
+    height: 7vh;
+    /* background: #9be800; */
+    background: linear-gradient(180deg, #9be800 10%, #4bcd00 100%);
+    font-size: 1.3rem;
+    font-weight: 550;
     color: #fff;
-    border-color: #396c05;
-}
-.rojo 
-{
-    background-color: #f03d30;
-    color: #fff;
-    border-color: #b13f25;
-}
-.blanco 
-{
-    background-color: #feffff;
-    color: #6b4129;
-    border-color: #75708b;
+    box-shadow: 0px 2px 5px #afafaf;
+    position: relative;
 }
 
-.button:hover
+.form-wideCont:last-of-type{height: 10vh;}
+
+.form-splitCont
 {
-    /* background-color: #7ebb04; */
-    filter: brightness(90%);
+    /* No le ponemos span, así que ocupa solo 1 columna (el 50%) automáticamente */
+    height: 40vh; 
+    background-color: white;
+    border: 2px solid gray;
 }
 </style>
