@@ -44,7 +44,7 @@ defineProps(
     font-weight: 570;
     text-decoration: none;
     text-align: center;
-    display: inline-block;
+    display: block;
     cursor: pointer;
 
     width: var(--btnWidth, fit-content);
