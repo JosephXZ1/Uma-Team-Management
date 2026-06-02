@@ -4,14 +4,14 @@
 </script>
 
 <template>
-  <!-- <ul class="background">
+  <ul class="background">
       <li></li>
       <li></li>
       <li></li>
       <li></li>
       <li></li>
       <li></li>
-  </ul> -->
+  </ul>
   <Header/> 
   
   <!-- Desbloquear o quitar comentario una vez que el proyecto se termine -->
