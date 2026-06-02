@@ -36,11 +36,11 @@ defineProps(
 <style scoped>
 .button 
 {
-    padding: 1.2rem 2.1rem;
+    padding: var(--btnPadding ,1.2rem 2.1rem);
     background-color: #8ccf05;
     border: 3px solid;
     border-radius: 12px;
-    font-size: 1.7rem;
+    font-size: var(--btnFontSize, 1.7rem);
     font-weight: 570;
     text-decoration: none;
     text-align: center;
