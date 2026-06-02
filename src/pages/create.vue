@@ -18,6 +18,7 @@ const mensajeError = ref('')
 const validarYGuardar = () =>
 {
     //.value es la forma en la que Vue accede al texto real dentro de un ref()
+    //Variables que formatean para empezar la validacion eliminando espacios con el metodo trim()
     const nombreFiltro = teamName.value.trim()
     const u1 = uma1.value.trim()
     const u2 = uma2.value.trim()
@@ -32,6 +33,7 @@ const validarYGuardar = () =>
     }
 
     //EVALUACIÓN 2: ¿Nombres repetidos?
+    //Primero se juntan todos los nombres escritos en un arreglo y se transforman a minuscula todo con el metodo lowerCase() para su posterior evaluacion
     const arregloUmas =
     [
         u1.toLowerCase(), 
@@ -40,15 +42,17 @@ const validarYGuardar = () =>
         u4.toLowerCase()
     ]
     
+    //Set es una estructura de datos nativa de JavaScript muy especial, es un conjunto que no permite elementos repetidos, se le da el arreglo ya formateados (sin espacios y ahora sin mayusculas) y entrega un arreglo nuevo sin copias
     const umasUnicas = new Set(arregloUmas)
 
+    //Una vez se tiene el nuevo arreglo se comprueba que el arreglo set sea igual de largo que el original (hayan 4 registros totales) con size (es un legth para set y map) ya que, si hay diferentes registros, deberían ser iguales y todo saldría bien, si hay menos eso quiere decir que hubo duplicados y por ende salta la alarma
     if (umasUnicas.size !== arregloUmas.length)
     {
         mensajeError.value = 'ⓘ Error: No puedes registrar a la misma integrante dos o más veces.'
         return
     }
 
-    //Si no hay detalles, no se muestra el mensaje
+    //Si no hay detalles, no se muestran los mensajes
     mensajeError.value = '' 
     
     //Area para cosas de la API
@@ -59,7 +63,7 @@ const validarYGuardar = () =>
 
 <template>
     <main class="flex">
-        <form class="form" @submit.prevent="validarYGuardar">
+        <form class="form" @submit.prevent="validarYGuardar"><!-- Submit.prevent activa toda la logica de validacion -->
             <div class="form-wideCont flex">
                 <h2>Crea tu equipo</h2>
             </div>
@@ -124,7 +128,7 @@ main
 .form-wideCont
 {
     grid-column: span 2;
-    height: 18vh; 
+    height: clamp(140px, 18vh, 150px); 
     background-color: #fff;
 }
 
@@ -142,7 +146,7 @@ main
 .form-splitCont
 {
     /* No se pone span, así que ocupa solo 1 columna (el 50%) automáticamente */
-    height: 30vh; 
+    height: clamp(190px, 30vh, 220px);
     background-color: #fff;
 }
 
@@ -196,7 +200,7 @@ input::placeholder{font-size: 1.5rem; font-weight: 550;}
 .form-errorCont
 {
     grid-column: span 2;
-    color: #c62828;
+    color: #fd4401;
     font-size: 1.3rem;
     font-weight: 600;
     align-items: center;
