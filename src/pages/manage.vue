@@ -1,24 +1,7 @@
 <script setup>
 import Boton from '@/components/button.vue'
 
-import { ref } from 'vue'
 
-const mostrarModal = ref(false)
-// Esta variable guardará el nombre (o el ID) del personaje seleccionado
-const personajeSeleccionado = ref('') 
-
-// La función ahora recibe un parámetro llamado "personaje"
-const verFicha = (personaje) =>
-{
-    personajeSeleccionado.value = personaje // Guardamos quién fue clickeado
-    mostrarModal.value = true               // Abrimos el modal
-}
-
-const cerrarModal = () =>
-{
-    mostrarModal.value = false
-    personajeSeleccionado.value = '' // Limpiamos la selección por buena práctica
-}
 </script>
 
 <template>
@@ -120,7 +103,7 @@ main
 
 .characterCont-card:hover{ box-shadow: 0 5px 7px #a8a6b7;}
 
-.characterCont-card img  {height: clamp(232px,53vh,518px);}
+.characterCont-card img  {height: clamp(350px,51vh,518px);}
 
 
 
@@ -128,31 +111,29 @@ main
 /* Overlay */
 .modal-overlay
 {
-    position: fixed; /* Se queda fijo en la pantalla aunque hagas scroll */
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100vw; /* Ocupa todo el ancho de la ventana */
-    height: 100vh; /* Ocupa todo el alto de la ventana */
-    background-color: rgba(0, 0, 0, 0.5); /* Color negro con 50% de transparencia */
+    width: 100vw;
+    height: 100vh;
+    background-color: #00000080;
     
     /* Usamos flexbox para centrar la caja interior perfectamente */
     display: flex;
     justify-content: center;
     align-items: center;
     
-    z-index: 1000; /* Asegura que flote por encima de toda la página */
+    z-index: 100;
 }
 
 /* El contenedor */
 .modal-caja
 {
-    background-color: white; /* Color base */
+    background-color: #fff; /* Color base */
     padding: 2rem;
     border-radius: 10px;
-    width: 50%; /* Puedes ajustarlo, usar clamp() o un min-width */
-    max-height: 80vh; /* Evita que sea más alto que la pantalla */
-    overflow-y: auto; /* Si el contenido de la API es muy largo, crea una barra de scroll interna */
-    
-    /* Aquí ya eres libre de usar grid, flex o lo que necesites para tu diseño interior */
+    width: 50%;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 </style>
