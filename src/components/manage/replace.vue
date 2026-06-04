@@ -1,6 +1,7 @@
 <script setup>
 import Boton from '@/components/button.vue'
 
+//Se recibe la prop para mostrarlo (puedes ponerla en true directo en tu sandbox para probar)
 defineProps(
 {
     mostrar: { type: Boolean, required: true }

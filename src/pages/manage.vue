@@ -1,5 +1,154 @@
 <script setup>
+import { ref } from 'vue'
+
 import Boton from '@/components/button.vue'
+import Modal from '@/components/manage/modal.vue'
+import Replace from '@/components/manage/replace.vue'
+
+//1. FUNCION DE CAMBIAR NOMBRE Y DISOLVER EQUIPO
+//Nombre inicial del equipo
+const nombreEquipo = ref('Team Spica')
+
+//La función que activa el botón 'Cambiar nombre'
+const cambiarNombre = () =>
+{
+    const nuevoNombre = prompt("Ingresa el nuevo nombre para tu equipo:", nombreEquipo.value)
+    
+    // 1. Lo primero es revisar si canceló la operación
+    if (nuevoNombre === null)
+    {
+        //El usuario presionó "Cancelar", se sale de la función sin hacer nada
+        return 
+    }
+    
+    const nombreFormateado = nuevoNombre.trim()
+
+    //Validaciones con los textos formateados
+    if (nombreFormateado === nombreEquipo.value) //Importante el .value para que funcione
+    {
+        alert('Error: Escribió el mismo nombre actual.')
+    } 
+    else if (nombreFormateado === "")
+    {
+        alert('Error: Ha dejado el campo vacío o solo escribió espacios en blanco.')
+    } 
+    else
+    {
+        //Si superó ambas pruebas, el nombre es nuevo y válido
+        nombreEquipo.value = nombreFormateado
+    }
+}
+
+//La función que activa el botón 'Disolver equipo'
+const eliminarEquipo = () =>
+{
+    // Aquí puedes meter un confirm() nativo rápido también
+    const seguro = confirm("¿Estás seguro de que deseas disolver el equipo? Esta acción no se puede deshacer.")
+    if (seguro)
+    {
+        console.log("Equipo disuelto...")
+        // Lógica futura para borrar datos y regresar a la pantalla de inicio
+    }
+}
+
+//1. FUNCIONES DE FICHA
+//Estado inicial de la ficha (cerrado al entrar obviamente)
+const abrirFicha = ref(false)
+
+//Objetos temporales estaticos sin API (Una 'Base de datos')
+const lasUmas = ref(
+[
+    {
+        id: 1,
+        nombre: "Special Week",
+        nombreJP: 'スペシャルウィーク',
+        racewear: "/src/assets/Multimedia/Imagenes/specialweek_02_2.png", 
+        uniform: "/src/assets/Multimedia/Imagenes/specialweek_01.png",
+        frase: "My name is Special Week! My dream is to be the best Umamusume in Japan! I'm gonna pull my own weight to make my moms proud!",
+        altura: "158 cm",
+        residencia: "Ritto Dorm",
+        grado: "Middle School"
+    },
+    {
+        id: 2,
+        nombre: "Silence Suzuka",
+        nombreJP: 'サイレンススズカ',
+        racewear: "/src/assets/Multimedia/Imagenes/silencesuzuka_02.png", 
+        uniform: "/src/assets/Multimedia/Imagenes/silencesuzuka_01.png",
+        frase: "I'm Silence Suzuka. I like to run. I'm not giving the lead to anyone. Um... That's all.",
+        altura: "161 cm",
+        residencia: "Ritto Dorm",
+        grado: "High School"
+    },
+    {
+        id: 3,
+        nombre: "Tokai Teio",
+        nombreJP: 'トウカイテイオー',
+        racewear: "/src/assets/Multimedia/Imagenes/tokaiteio_02.png", 
+        uniform: "/src/assets/Multimedia/Imagenes/tokaiteio_01.png",
+        frase: "Heya, I'm Tokai Teio! I'm going to be an undefeated Triple Crown Umamusume, so don't let me out of your sight!",
+        altura: "150 cm",
+        residencia: "Ritto Dorm",
+        grado: "Middle School"
+    },
+    {
+        id: 4,
+        nombre: "Mejiro McQueen",
+        nombreJP: 'メジロマックイーン',
+        racewear: "/src/assets/Multimedia/Imagenes/mejiromcqueen_02.png", 
+        uniform: "/src/assets/Multimedia/Imagenes/mejiromcqueen_01.png",
+        frase: 'My name is Mejiro McQueen. Conquering the "Spring Tennosho" has been a long-cherished goal of the Mejiro family, and I will do it with my own two legs.',
+        altura: "159 cm",
+        residencia: "Ritto Dorm",
+        grado: "Middle School"
+    }
+])
+
+//Aquí se guardara temporalmente los datos de la uma seleccionada (null al inicio porque pues no se selecciono ninguna ficha para ver logicamente)
+const personajeSeleccionado = ref(null)
+
+//La función que activa el botón 'Ver ficha'
+const verFicha = (IdPersonaje) =>
+{
+    //Basado en el ID del botón declarado en el componente (1, 2, 3, 4), se busca en el arreglo a la Uma que coincida con el ID que mandó el botón
+    const umaEncontrada = lasUmas.value.find(uma => uma.id === IdPersonaje)
+    
+    if (umaEncontrada)
+    {
+        personajeSeleccionado.value = umaEncontrada //Se ponen los datos en la caja vacía
+        abrirFicha.value = true              //El modal se inicia y enciende
+    }
+}
+
+//Ventana de sustitucion por defecto en false para que este cerrada
+const modalSustituirAbierto = ref(false)
+
+//La función que activa el botón 'sustituir Uma'
+const abrirSustitucion = () => 
+{
+    modalSustituirAbierto.value = true
+}
+
+//La función que activa el botón 'cancelar'
+const cerrarSustitucion = () => 
+{
+    modalSustituirAbierto.value = false
+}
+
+const iniciarSustitucion = () =>
+{
+    console.log("Abriendo segundo modal de sustitución...")
+    // modalSustituirAbierto.value = true
+}
+
+
+
+//La función que activa el botón 'Cerrar' dentro de la ficha
+const cerrarFicha = () =>
+{
+    abrirFicha.value = false
+    personajeSeleccionado.value = null
+}
 
 
 </script>
@@ -7,7 +156,7 @@ import Boton from '@/components/button.vue'
 <template>
     <main class="flex flexColumn">
         <div class="head flex">
-            <h2>Team Spica</h2>
+            <h2>{{ nombreEquipo }}</h2>
             <Boton
                 texto="Cambiar nombre"
                 @click-accion="cambiarNombre"
@@ -27,7 +176,7 @@ import Boton from '@/components/button.vue'
                 <img src="@/assets/Multimedia/Imagenes/specialweek_02_2.png" alt="">
                 <Boton
                     texto="Ver ficha"
-                    @click-accion="verFicha('Special Week')"
+                    @click-accion="verFicha(1)"
                     :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                 />
             </div>
@@ -35,7 +184,7 @@ import Boton from '@/components/button.vue'
                 <img src="@/assets/Multimedia/Imagenes/silencesuzuka_02.png" alt="">
                 <Boton
                     texto="Ver ficha"
-                    @click-accion="verFicha('Silence Suzuka')"
+                    @click-accion="verFicha(2)"
                     :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                 />
             </div>
@@ -43,7 +192,7 @@ import Boton from '@/components/button.vue'
                 <img src="@/assets/Multimedia/Imagenes/tokaiteio_02.png" alt="">
                 <Boton
                     texto="Ver ficha"
-                    @click-accion="verFicha('Tokai Teio')"
+                    @click-accion="verFicha(3)"
                     :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                 />
             </div>
@@ -51,10 +200,24 @@ import Boton from '@/components/button.vue'
                 <img src="@/assets/Multimedia/Imagenes/mejiromcqueen_02.png" alt="">
                 <Boton
                     texto="Ver ficha"
-                    @click-accion="verFicha('Mejiro McQueen')"
+                    @click-accion="verFicha(4)"
                     :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                 />
             </div>
+
+            <Modal 
+                v-if="personajeSeleccionado"
+                :mostrar="abrirFicha"
+                :uma="personajeSeleccionado"
+                @cerrar-modal="cerrarFicha"
+                @sustituir="abrirSustitucion"
+            />     
+            
+            <Replace 
+                :mostrar="modalSustituirAbierto"
+                @cerrar-modal="cerrarSustitucion"
+                @aceptar="cerrarSustitucion"
+            />
         </div>
     </main>
 </template>

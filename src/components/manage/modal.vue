@@ -1,28 +1,46 @@
 <script setup>
-// Le decimos a Vue que este componente puede emitir la señal 'cerrar-modal'
-// defineEmits(['cerrar-modal'])
-
+import { ref } from 'vue'
 import Boton from '@/components/button.vue'
+
+const props = defineProps(
+{
+    mostrar:
+    { 
+        type: Boolean, 
+        required: true 
+    },
+    uma: 
+    { 
+        type: Object, 
+        required: true
+    }
+})
+
+//Emits necesarios para botones
+defineEmits(['cerrar-modal', 'translate-name', 'sustituir'])
+
+//Por defecto, cuando se abra el modal, mostrará como racewear y nombre en ingles
+const ropaActual = ref('racewear')
+const idiomaActual = ref('en')
 </script>
 
 <template>
-    <div class="modal-overlay flex" @click="$emit('cerrar-modal')">
+    <div v-if="mostrar" class="modal-overlay flex" @click="$emit('cerrar-modal')">
+        
         <div class="modal-caja flex" @click.stop>
-            
-            <!-- Contenedor de imagen y botones relacionados -->
             <div class="modal-img flex flexColumn">
-                <img src="@/assets/Multimedia/Imagenes/goldship_02.png" alt="">
+                <img :src="ropaActual === 'racewear' ? uma.racewear : uma.uniform"   :alt="uma.nombre">
                 <div class="flex">
                     <Boton 
-                        texto="Uniforme" 
-                        @click-accion="cambiarUniform" 
+                        texto="Uniforme"
+                        @click-accion="ropaActual = 'uniforme'" 
                         color="blanco" 
                         :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                         class="flexGrow"
                     />
                     <Boton 
                         texto="Racewear" 
-                        @click-accion="cambiarRace" 
+                        @click-accion="ropaActual = 'racewear'" 
                         color="blanco" 
                         :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                         class="flexGrow"
@@ -30,41 +48,40 @@ import Boton from '@/components/button.vue'
                 </div>
             </div>
             
-            <!-- Contenedor de informacion y acciones -->
             <div class="modal-info flex flexColumn">
-                <h2>Gold Ship</h2>
+                <h2>{{ idiomaActual === 'en' ? uma.nombre : uma.nombreJP }}</h2>
                 <div class="information">
-                    <p>Yo, I'm Gold Ship! I don't care if it's on the turf, on fire, or at the edge of the universe. I'm going to find something interesting wherever I can! ☆</p>
+                    <p>{{ uma.frase }}</p>
                     <ul>
-                        <li>Altura: 170cm</li>
-                        <li>Residencia: Ritto Dorm</li>
-                        <li>Grado: ???</li>
+                        <li>Altura: {{ uma.altura }}</li>
+                        <li>Residencia: {{ uma.residencia }}</li>
+                        <li>Grado: {{ uma.grado }}</li>
                     </ul>
                 </div>
                 <div class="buttons flex">
                     <Boton 
                         texto="Cambiar nombre a Japonés/Inglés" 
-                        @click-accion="translateName" 
+                        @click-accion="idiomaActual = idiomaActual === 'en' ? 'jp' : 'en'" 
                         :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                     />
                     <Boton 
                         texto="Sustituir Uma" 
-                        @click-accion="sustituir" 
+                        @click-accion="$emit('sustituir')" 
                         color="blanco" 
                         :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                     />
                     <Boton 
                         texto="Cerrar" 
-                        @click-accion="cerrarModal" 
+                        @click-accion="$emit('cerrar-modal')" 
                         color="rojo" 
                         :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                     />
                 </div>
             </div>
+
         </div>
     </div>
 </template>
-
 
 <style scoped>
 /* Aquí pegamos exactamente el mismo CSS estructural que vimos antes */
@@ -76,7 +93,7 @@ import Boton from '@/components/button.vue'
     width: 100%;
     height: 100vh;
     background-color: #00000080;
-    z-index: 1000;
+    z-index: 100;
 }
 
 .modal-caja
@@ -86,8 +103,7 @@ import Boton from '@/components/button.vue'
     padding: 2rem;  
     border-radius: 1rem;    
     background-color: #fff;
-
-
+    gap: 2rem;
     overflow-y: auto;
 }
 
@@ -96,6 +112,7 @@ import Boton from '@/components/button.vue'
 {
     flex: 3;
     height: 100%;
+    gap: 1rem;
 }
 
 .modal-img img {height: 87%;}
@@ -144,8 +161,5 @@ import Boton from '@/components/button.vue'
     line-height: 3.5rem;
 }
 
-.modal-info .buttons
-{
-    gap: 1rem;
-}
+.modal-info .buttons {gap: 1rem;}
 </style>
