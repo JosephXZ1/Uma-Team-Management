@@ -1,30 +1,95 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { umaService } from '@/services/umaService'
 
 import Boton from '@/components/button.vue'
 import Modal from '@/components/manage/modal.vue'
 import Replace from '@/components/manage/replace.vue'
 
-//1. FUNCION DE CAMBIAR NOMBRE Y DISOLVER EQUIPO
-//Nombre inicial del equipo
-const nombreEquipo = ref('Team Spica')
+const router = useRouter()
 
-//La función que activa el botón 'Cambiar nombre'
+// ESTADOS DE CONTROL Y LOGÍSTICA DE RED
+const nombreEquipo = ref('')
+const integrantesEquipo = ref([]) //Inicia vacío, la API lo va a rellenar
+const hayDatos = ref(false)
+const cargando = ref(true) //Pantalla de carga mientras responde internet
+
+onMounted(async () =>
+{
+    try
+    {
+        //1- Se intenta recuperar el equipo del LocalStorage ()
+        const equipoGuardado = umaService.obtenerEquipoDeLocal()
+
+        if (equipoGuardado)
+        {
+            hayDatos.value = true
+            nombreEquipo.value = equipoGuardado.nombre
+
+            //2- Se usa map para las 4 IDs guardadas para pedir sus datos reales a la API
+            const promesasPersonajes = equipoGuardado.integrantesIds.map(async (id) =>
+            {
+                //Se activa la consulta de textos y la de imágenes en paralelo
+                const [datosTexto, datosImagenes] = await Promise.all(
+                [
+                    umaService.getCharacterById(id),
+                    umaService.getCharacterImagesById(id)
+                ])
+
+                //Se busca en el arreglo la categoría "Uniform" y "Racewear"
+                const bloqueUniforme = datosImagenes.find(item => item.label_en === "Uniform")
+                const bloqueRacewear = datosImagenes.find(item => item.label_en === "Racewear")
+
+                //Se extraen la URL de la imagen. Usamos el signo de interrogación (?.) 
+                //por si alguna Uma no tiene imagen subida, para evitar errores
+                const urlUniforme = bloqueUniforme?.images?.[0]?.image || ''
+                const urlRacewear = bloqueRacewear?.images?.[0]?.image || ''
+
+                //Se junta todos los datos en un formato idéntico al que ya se usaba en la version estatica
+                return(
+                {
+                    id: id,
+                    nombre: datosTexto.name_en,
+                    nombreJP: datosTexto.name_jp,
+                    frase: datosTexto.profile,
+                    altura: datosTexto.height,
+                    residencia: datosTexto.residence,
+                    grado: datosTexto.grade,
+                    uniform: urlUniforme, // Usamos las nuevas variables extraídas
+                    racewear: urlRacewear
+                })
+            })
+
+            //Se resuelven las 4 peticiones simultáneas
+            integrantesEquipo.value = await Promise.all(promesasPersonajes)
+        }
+        else
+        {
+            hayDatos.value = false
+        }
+    }
+    catch (error)
+    {
+        console.error("Error al conectar con los servidores de Umapyoi.net:", error)
+    }
+    finally
+    {
+        cargando.value = false //Se quita el letrero de carga
+    }
+})
+
+
+//1- FUNCIÓN DE CAMBIAR NOMBRE Y DISOLVER EQUIPO
 const cambiarNombre = () =>
 {
     const nuevoNombre = prompt("Ingresa el nuevo nombre para tu equipo:", nombreEquipo.value)
     
-    // 1. Lo primero es revisar si canceló la operación
-    if (nuevoNombre === null)
-    {
-        //El usuario presionó "Cancelar", se sale de la función sin hacer nada
-        return 
-    }
+    if (nuevoNombre === null) return 
     
     const nombreFormateado = nuevoNombre.trim()
 
-    //Validaciones con los textos formateados
-    if (nombreFormateado === nombreEquipo.value) //Importante el .value para que funcione
+    if (nombreFormateado === nombreEquipo.value)
     {
         alert('Error: Escribió el mismo nombre actual.')
     } 
@@ -34,103 +99,58 @@ const cambiarNombre = () =>
     } 
     else
     {
-        //Si superó ambas pruebas, el nombre es nuevo y válido
         nombreEquipo.value = nombreFormateado
+        
+        const equipoActual = umaService.obtenerEquipoDeLocal()
+        if (equipoActual) {
+            umaService.guardarEquipoEnLocal(nombreFormateado, equipoActual.integrantesIds)
+        }
     }
 }
 
-//La función que activa el botón 'Disolver equipo'
 const eliminarEquipo = () =>
 {
-    // Aquí puedes meter un confirm() nativo rápido también
     const seguro = confirm("¿Estás seguro de que deseas disolver el equipo? Esta acción no se puede deshacer.")
     if (seguro)
     {
         console.log("Equipo disuelto...")
-        // Lógica futura para borrar datos y regresar a la pantalla de inicio
+        localStorage.removeItem('escuderia_spica_datos') // Limpia el almacén local
+        hayDatos.value = false
+        router.push('/') // Te regresa a la bienvenida o home
     }
 }
 
-//1. FUNCIONES DE FICHA
-//Estado inicial de la ficha (cerrado al entrar obviamente)
+//2- FUNCIONES DE FICHA (CONECTADO A LOS DATOS DE LA API)
 const abrirFicha = ref(false)
-
-//Objetos temporales estaticos sin API (Una 'Base de datos')
-const lasUmas = ref(
-[
-    {
-        id: 1,
-        nombre: "Special Week",
-        nombreJP: 'スペシャルウィーク',
-        racewear: "/src/assets/Multimedia/Imagenes/specialweek_02_2.png", 
-        uniform: "/src/assets/Multimedia/Imagenes/specialweek_01.png",
-        frase: "My name is Special Week! My dream is to be the best Umamusume in Japan! I'm gonna pull my own weight to make my moms proud!",
-        altura: "158 cm",
-        residencia: "Ritto Dorm",
-        grado: "Middle School"
-    },
-    {
-        id: 2,
-        nombre: "Silence Suzuka",
-        nombreJP: 'サイレンススズカ',
-        racewear: "/src/assets/Multimedia/Imagenes/silencesuzuka_02.png", 
-        uniform: "/src/assets/Multimedia/Imagenes/silencesuzuka_01.png",
-        frase: "I'm Silence Suzuka. I like to run. I'm not giving the lead to anyone. Um... That's all.",
-        altura: "161 cm",
-        residencia: "Ritto Dorm",
-        grado: "High School"
-    },
-    {
-        id: 3,
-        nombre: "Tokai Teio",
-        nombreJP: 'トウカイテイオー',
-        racewear: "/src/assets/Multimedia/Imagenes/tokaiteio_02.png", 
-        uniform: "/src/assets/Multimedia/Imagenes/tokaiteio_01.png",
-        frase: "Heya, I'm Tokai Teio! I'm going to be an undefeated Triple Crown Umamusume, so don't let me out of your sight!",
-        altura: "150 cm",
-        residencia: "Ritto Dorm",
-        grado: "Middle School"
-    },
-    {
-        id: 4,
-        nombre: "Mejiro McQueen",
-        nombreJP: 'メジロマックイーン',
-        racewear: "/src/assets/Multimedia/Imagenes/mejiromcqueen_02.png", 
-        uniform: "/src/assets/Multimedia/Imagenes/mejiromcqueen_01.png",
-        frase: 'My name is Mejiro McQueen. Conquering the "Spring Tennosho" has been a long-cherished goal of the Mejiro family, and I will do it with my own two legs.',
-        altura: "159 cm",
-        residencia: "Ritto Dorm",
-        grado: "Middle School"
-    }
-])
-
-//Aquí se guardara temporalmente los datos de la uma seleccionada (null al inicio porque pues no se selecciono ninguna ficha para ver logicamente)
 const personajeSeleccionado = ref(null)
 
-//La función que activa el botón 'Ver ficha'
 const verFicha = (IdPersonaje) =>
 {
-    //Basado en el ID del botón declarado en el componente (1, 2, 3, 4), se busca en el arreglo a la Uma que coincida con el ID que mandó el botón
-    const umaEncontrada = lasUmas.value.find(uma => uma.id === IdPersonaje)
+    //Ahora busca a la uma dentro de 'integrantesEquipo' que tiene los datos de internet
+    const umaEncontrada = integrantesEquipo.value.find(uma => uma.id === IdPersonaje)
     
     if (umaEncontrada)
     {
-        personajeSeleccionado.value = umaEncontrada //Se ponen los datos en la caja vacía
-        abrirFicha.value = true              //El modal se inicia y enciende
+        personajeSeleccionado.value = umaEncontrada 
+        abrirFicha.value = true              
     }
 }
 
-//Ventana de sustitucion por defecto en false para que este cerrada
+const cerrarFicha = () =>
+{
+    abrirFicha.value = false
+    personajeSeleccionado.value = null
+}
+
+//3- VENTANA DE SUSTITUCIÓN
 const modalSustituirAbierto = ref(false)
 
-//La función que activa el botón 'sustituir Uma'
-const abrirSustitucion = () => 
+const abrirSustitucion = () =>
 {
     modalSustituirAbierto.value = true
 }
 
-//La función que activa el botón 'cancelar'
-const cerrarSustitucion = () => 
+const cerrarSustitucion = () =>
 {
     modalSustituirAbierto.value = false
 }
@@ -138,87 +158,96 @@ const cerrarSustitucion = () =>
 const iniciarSustitucion = () =>
 {
     console.log("Abriendo segundo modal de sustitución...")
-    // modalSustituirAbierto.value = true
 }
 
-
-
-//La función que activa el botón 'Cerrar' dentro de la ficha
-const cerrarFicha = () =>
+const irACrear = () =>
 {
-    abrirFicha.value = false
-    personajeSeleccionado.value = null
+    router.push('/create')
 }
-
-
 </script>
 
 <template>
+    <!-- CONTENEDOR MAESTRO -->
     <main class="flex flexColumn">
-        <div class="head flex">
-            <h2>{{ nombreEquipo }}</h2>
-            <Boton
-                texto="Cambiar nombre"
-                @click-accion="cambiarNombre"
-                color="blanco"
-                :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'} "
-            />
-            <Boton
-                texto="Disolver equipo"
-                @click-accion="eliminarEquipo"
-                color="rojo"
-                :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'} "
-            />
+
+        <!-- ESTADO 1: MIENTRAS DESCARGA LOS DATOS DE INTERNET -->
+        <div v-if="cargando" class="flex flexColumn loading">
+            <h2>Conectando con Umapyoi.net...</h2>
+            <p>Obteniendo fichas técnicas e imágenes...</p>
         </div>
 
-        <div class="characterCont flex">
-            <div class="characterCont-card flex flexColumn transition">
-                <img src="@/assets/Multimedia/Imagenes/specialweek_02_2.png" alt="">
-                <Boton
-                    texto="Ver ficha"
-                    @click-accion="verFicha(1)"
-                    :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
-                />
-            </div>
-            <div class="characterCont-card flex flexColumn transition">
-                <img src="@/assets/Multimedia/Imagenes/silencesuzuka_02.png" alt="">
-                <Boton
-                    texto="Ver ficha"
-                    @click-accion="verFicha(2)"
-                    :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
-                />
-            </div>
-            <div class="characterCont-card flex flexColumn transition">
-                <img src="@/assets/Multimedia/Imagenes/tokaiteio_02.png" alt="">
-                <Boton
-                    texto="Ver ficha"
-                    @click-accion="verFicha(3)"
-                    :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
-                />
-            </div>
-            <div class="characterCont-card flex flexColumn transition">
-                <img src="@/assets/Multimedia/Imagenes/mejiromcqueen_02.png" alt="">
-                <Boton
-                    texto="Ver ficha"
-                    @click-accion="verFicha(4)"
-                    :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
-                />
-            </div>
-
-            <Modal 
-                v-if="personajeSeleccionado"
-                :mostrar="abrirFicha"
-                :uma="personajeSeleccionado"
-                @cerrar-modal="cerrarFicha"
-                @sustituir="abrirSustitucion"
-            />     
+        <!-- CUANDO LA API YA RESPONDIÓ -->
+        <div v-else class="flex flexColumn masterCont">
             
-            <Replace 
-                :mostrar="modalSustituirAbierto"
-                @cerrar-modal="cerrarSustitucion"
-                @aceptar="cerrarSustitucion"
-            />
+            <!-- ESTADO 2: EL USUARIO TIENE UN EQUIPO EN LOCALSTORAGE -->
+            <div v-if="hayDatos" class="full flex flexColumn">
+                <!-- ENCABEZADO DINÁMICO -->
+                <div class="head flex">
+                    <h2>{{ nombreEquipo }}</h2>
+                    <Boton
+                        texto="Cambiar nombre"
+                        @click-accion="cambiarNombre"
+                        color="blanco"
+                        :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'} "
+                    />
+                    <Boton
+                        texto="Disolver equipo"
+                        @click-accion="eliminarEquipo"
+                        color="rojo"
+                        :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'} "
+                    />
+                </div>
+
+                <!-- CONTENEDOR DE TARJETAS DINÁMICAS -->
+                <div class="characterCont flex">
+                    
+                    <div 
+                        v-for="uma in integrantesEquipo" 
+                        :key="uma.id" 
+                        class="characterCont-card flex flexColumn transition"
+                    >
+                        <!-- La imagen ahora apunta a la URL web que dio el endpoint de imágenes -->
+                        <img :src="uma.racewear" :alt="uma.nombre">
+                        <!-- Se agrega los nombres dinámicos debajo de la imagen -->
+                        <h3>{{ uma.nombre }}</h3>
+                        <!-- Al boton se le manda el ID real de la API a la función verFicha -->
+                        <Boton
+                            texto="Ver ficha"
+                            @click-accion="verFicha(uma.id)"
+                            :style="{'--btnWidth' : '100%', '--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
+                        />
+                    </div>
+
+                    <!-- Modales de mostrar ficha y reemplazar -->
+                    <Modal 
+                        v-if="personajeSeleccionado"
+                        :mostrar="abrirFicha"
+                        :uma="personajeSeleccionado"
+                        @cerrar-modal="cerrarFicha"
+                        @sustituir="abrirSustitucion"
+                    />     
+                    
+                    <Replace 
+                        :mostrar="modalSustituirAbierto"
+                        @cerrar-modal="cerrarSustitucion"
+                        @aceptar="cerrarSustitucion"
+                    />
+                </div>
+            </div>
+
+            <!-- ESTADO 3: LA APLICACIÓN ESTÁ VACÍA (PROTECCIÓN DE DATOS) -->
+            <div v-else class="empty flex flexColumn">
+                <h2>No tienes ningun equipo registrado</h2>
+                <p>Para gestionar a tus UmaMusume, primero debes asignarle un nombre a tu equipo y seleccionar a sus 4 integrantes</p>
+                <Boton 
+                    texto="Crear mi escudería ahora" 
+                    color="verde"
+                    @click-accion="irACrear" 
+                    :style="{'--btnPadding' : '1.2rem 2rem', '--btnFontSize' : '1.6rem'} "
+                />
+            </div>
         </div>
+
     </main>
 </template>
 
@@ -232,23 +261,51 @@ main
     gap: 2rem;
 }
 
-.head
+/* CARTELES DE ESPERA DE DESCARGA/CARGANDO Y SI NO HAY DATOS */
+.loading
 {
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
     gap: 1rem;
 }
 
-.head h2
+.loading h2 {font-size: 2rem;}
+
+.empty
 {
-    font-size: 4rem;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    text-align: center;
+    gap: 1.5rem;
 }
+
+.empty h2 {font-size: 2.5rem;}
+
+.empty p
+{
+    font-size: 1.4rem;
+    max-width: 600px;
+}
+
+/* LA GESTION Y FICHAS */
+.masterCont {width: 100%;}
+
+.full
+{
+    width: 100%;
+    gap: 2rem;
+}
+
+.head {gap: 1rem;}
+
+.head h2 {font-size: 4rem;}
 
 .characterCont
 {
     width: 100%;
-    height: 75%;
     gap: 2rem;
-
-    /* background-color: aquamarine; */
 }
 
 .characterCont-card
@@ -268,7 +325,12 @@ main
 
 .characterCont-card img  {height: clamp(350px,51vh,518px);}
 
-
+.characterCont-card h3
+{
+    font-size: 1.8rem;
+    margin: 1rem 0;
+    font-weight: bold;
+}
 
 /* MODALES DE PERSONAJE */
 /* Overlay */

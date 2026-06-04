@@ -1,18 +1,39 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { umaService } from '@/services/umaService'
 import Boton from '@/components/button.vue'
 
-//Activar el enrutador de Vue para poder cambiar de página
+//Activar el enrutador de Vue para poder cambiar de página y la lista vacia inicialmente (se rellena con datos)
 const router = useRouter()
+const listaPersonajes = ref([])
 
-//Crear las variables reactivas de Vue
+//Variables de los inputs
 const teamName = ref('')
 const uma1 = ref('')
 const uma2 = ref('')
 const uma3 = ref('')
 const uma4 = ref('')
+
+//2- Al cargar la página, vamos a internet por los datos
 const mensajeError = ref('')
+
+onMounted(async () =>
+{
+    try
+    {
+        //Se llama al método probdo previamente en el sandbox
+        const datosApi = await umaService.getCharacterInfoList()
+        
+        //Se guarda la lista en nuestra variable reactiva
+        listaPersonajes.value = datosApi
+        console.log("Datalist alimentado con la API web")
+    }
+    catch (error)
+    {
+        alert("Hubo un error al cargar el catálogo de personajes desde internet.")
+    }
+})
 
 //Declaracion de la función de validación
 const validarYGuardar = () =>
@@ -55,7 +76,35 @@ const validarYGuardar = () =>
     //Si no hay detalles, no se muestran los mensajes
     mensajeError.value = '' 
     
-    //Area para cosas de la API
+
+    //ÁREA PARA COSAS DE LA API Y GUARDADO
+    
+    //Función auxiliar que busca en la lista descargada el personaje por su nombre y saca su ID
+    const buscarId = (nombreEscrito) =>
+    {
+        const personaje = listaPersonajes.value.find(
+            //formatea con lowercase para evitar errores si el usuario usa mayúsculas mal
+            uma => uma.name_en.toLowerCase() === nombreEscrito.toLowerCase()
+        )
+        return personaje ? personaje.id : null
+    }
+
+    //Se convierten los 4 nombres que escribió el usuario en sus IDs reales
+    const id1 = buscarId(u1)
+    const id2 = buscarId(u2)
+    const id3 = buscarId(u3)
+    const id4 = buscarId(u4)
+
+    //EVALUACIÓN 3
+    //¿Escribieron un nombre que no existe en la API?
+    if (!id1 || !id2 || !id3 || !id4)
+    {
+        mensajeError.value = 'ⓘ Error: Por favor, selecciona a las integrantes usando la lista desplegable.'
+        return
+    }
+
+    //Si todo es válido, llamamos a tu servicio para guardar en el LocalStorage
+    umaService.guardarEquipoEnLocal(nombreFiltro, [id1, id2, id3, id4])
 
     router.push('/manage')
 }
@@ -63,7 +112,7 @@ const validarYGuardar = () =>
 
 <template>
     <main class="flex">
-        <form class="form" @submit.prevent="validarYGuardar"><!-- Submit.prevent activa toda la logica de validacion -->
+        <form class="form" @submit.prevent="validarYGuardar">
             <div class="form-wideCont flex">
                 <h2>Crea tu equipo</h2>
             </div>
@@ -75,23 +124,31 @@ const validarYGuardar = () =>
 
             <div class="form-splitCont flex flexColumn">
                 <label for="uma1">Integrante 1</label>
-                <input type="text" id="uma1" v-model="uma1" placeholder="Special Week" class="transition">
+                <input type="text" id="uma1" v-model="uma1" list="lista-umas" placeholder="Special Week" class="transition">
 
                 <label for="uma2">Integrante 2</label>
-                <input type="text" id="uma2" v-model="uma2" placeholder="Silence Suzuka" class="transition">
+                <input type="text" id="uma2" v-model="uma2" list="lista-umas" placeholder="Silence Suzuka" class="transition">
             </div>
             
             <div class="form-splitCont flex flexColumn">
                 <label for="uma3">Integrante 3</label>
-                <input type="text" id="uma3" v-model="uma3" placeholder="Vodka" class="transition">
+                <input type="text" id="uma3" v-model="uma3" list="lista-umas" placeholder="Vodka" class="transition">
 
                 <label for="uma4">Integrante 4</label>
-                <input type="text" id="uma4" v-model="uma4" placeholder="Daiwa Scarlett" class="transition">
+                <input type="text" id="uma4" v-model="uma4" list="lista-umas" placeholder="Daiwa Scarlett" class="transition">
             </div>
             
             <div v-if="mensajeError" class="form-errorCont flex">
                 <p>{{ mensajeError }}</p>
             </div>
+
+            <datalist id="lista-umas">
+                <option 
+                    v-for="uma in listaPersonajes" 
+                    :key="uma.id" 
+                    :value="uma.name_en" 
+                ></option>
+            </datalist>
 
             <div class="form-wideCont flex">
                 <Boton
