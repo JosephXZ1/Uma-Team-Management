@@ -60,7 +60,7 @@ const idiomaActual = ref('en')
                 </div>
                 <div class="buttons flex">
                     <Boton 
-                        texto="Cambiar nombre a Japonés/Inglés" 
+                        texto="Cambiar nombre a JP/EN" 
                         @click-accion="idiomaActual = idiomaActual === 'en' ? 'jp' : 'en'" 
                         :style="{'--btnPadding' : '1rem 1.5rem', '--btnFontSize' : '1.5rem'}"
                     />
@@ -136,7 +136,7 @@ const idiomaActual = ref('en')
 .modal-info h2
 {
     font-family: "Aleo", serif;
-    font-size: 5rem;
+    font-size: clamp(3rem, 4vw, 5rem);
     font-style: italic;
 }
 
@@ -148,17 +148,17 @@ const idiomaActual = ref('en')
 
 .information p
 {
-    margin-bottom: 3rem;
-    font-size: 2.3rem;
+    margin-bottom: 2.3rem;
+    font-size: clamp(1.7rem, 1.7vw , 2.3rem);;
     font-weight: 550;
     font-style: italic;
 }
 
 .information ul li
 {
-    font-size: 2rem;
+    font-size: clamp(1.3rem, 1.5vw, 2rem);
     font-weight: 500;
-    line-height: 3.5rem;
+    line-height: clamp(2rem, 2.5vw, 3.5rem);
 }
 
 .modal-info .buttons {gap: 1rem;}
