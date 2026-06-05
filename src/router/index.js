@@ -12,18 +12,21 @@ const routes =
     {
       path: '/',
       name: 'Home',
-      component: Home
+      component: Home,
+      meta: {title: 'TA: Team Manager'}
     },
 
     {
       path: '/create',
       name: 'Create',
-      component: Create
+      component: Create,
+      meta: {title: 'Crea tu equipo'}
     },
     {
       path: '/manage',
       name: 'Manage',
-      component: Manage
+      component: Manage,
+      meta: {title: 'Gestión de equipo'}
     },
 
     //Este enlace es un sandBox, un sitio de prueba de componentes temporal, eliminar cuando se termine todo
@@ -37,6 +40,12 @@ const router = createRouter(
 {
     history: createWebHistory(),
     routes
+})
+
+router.beforeEach((to, from, next) =>
+{
+  document.title = to.meta.title
+  next()
 })
 
 export default router
