@@ -103,7 +103,7 @@ const validarYGuardar = () =>
         return
     }
 
-    //Si todo es válido, llamamos a tu servicio para guardar en el LocalStorage
+    //Si todo es válido, llamamos al servicio para guardar en el LocalStorage
     umaService.guardarEquipoEnLocal(nombreFiltro, [id1, id2, id3, id4])
 
     router.push('/manage')
