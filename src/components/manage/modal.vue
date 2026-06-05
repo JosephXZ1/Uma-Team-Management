@@ -53,7 +53,7 @@ const idiomaActual = ref('en')
                 <div class="information">
                     <p>{{ uma.frase }}</p>
                     <ul>
-                        <li>Altura: {{ uma.altura }}</li>
+                        <li>Altura: {{ uma.altura }} cm</li>
                         <li>Residencia: {{ uma.residencia }}</li>
                         <li>Grado: {{ uma.grado }}</li>
                     </ul>
