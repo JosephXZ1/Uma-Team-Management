@@ -128,6 +128,7 @@ const idiomaActual = ref('en')
 /* INFORMACION DEL PERSONAJE */
 .modal-info
 {
+    padding-top: 3rem;
     flex: 7;
     height: 100%;
     align-items: flex-start;
@@ -161,5 +162,9 @@ const idiomaActual = ref('en')
     line-height: clamp(2rem, 2.5vw, 3.5rem);
 }
 
-.modal-info .buttons {gap: 1rem;}
+.modal-info .buttons
+{
+    gap: 1rem;
+    margin-top: auto;
+}
 </style>

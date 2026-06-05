@@ -327,7 +327,7 @@ main
 
 .characterCont-card h3
 {
-    font-size: 1.8rem;
+    font-size: clamp(1.5rem, 1.5vw ,1.8rem);
     margin: 1rem 0;
     font-weight: bold;
 }
