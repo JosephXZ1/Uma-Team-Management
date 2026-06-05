@@ -147,7 +147,8 @@ const validarYGuardar = () =>
                     v-for="uma in listaPersonajes" 
                     :key="uma.id" 
                     :value="uma.name_en" 
-                ></option>
+                >
+                </option>
             </datalist>
 
             <div class="form-wideCont flex">
