@@ -20,6 +20,8 @@ import Boton from '@/components/button.vue'
                 color="home"
                 class="marginTop"
             />
+
+            <p class="copy flex">Made and designed by <img src="@/assets/Multimedia/Imagenes/BlackWaterLogoW_JT.png" alt=""></p>
         </div>
         
     </div>
@@ -56,7 +58,7 @@ import Boton from '@/components/button.vue'
     position: relative;
     z-index: 1;
     color: #fff;
-    padding: 7rem 5rem;
+    padding: 7rem 5rem 1rem;
     width: 100%;
     height: 100%;
     align-items: center;
@@ -64,7 +66,7 @@ import Boton from '@/components/button.vue'
     text-align: center;
 }
 
-.content h1
+.content div h1
 {
     font-size: clamp(1.2rem, 4.6vw, 7rem);
     font-family: "Aleo", serif;
@@ -73,7 +75,7 @@ import Boton from '@/components/button.vue'
     text-shadow: 5px 5px 5px #000;
 }
 
-.content p
+.content div p
 {
     margin-top: 0.5rem;
     font-size: 2.5rem;
@@ -82,4 +84,15 @@ import Boton from '@/components/button.vue'
 }
 
 .marginTop {margin-top: auto;}
+
+.content .copy
+{
+    margin-top: 3rem;  
+    gap: 0.7rem;    
+    font-size: 1.7rem;
+    font-weight: 550;
+    filter: brightness(0.85);
+}
+
+.content .copy img {width: 14vw;}
 </style>
